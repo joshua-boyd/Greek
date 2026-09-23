@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="grc">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homer, Iliad — an annotated reader</title>
+<meta name="description" content="Read Homer's Iliad in Greek with click-to-parse morphology from the Perseus Ancient Greek Dependency Treebank.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button id="menu-toggle" class="icon-btn" aria-label="Show book list" aria-expanded="false">☰</button>
+  <h1>Ὅμηρος · <span class="subtitle">Iliad</span></h1>
+  <div class="topbar-right">
+    <label class="jump">
+      <span class="sr-only">Go to line</span>
+      <input id="jump" type="text" placeholder="e.g. 6.440" size="8" autocomplete="off" spellcheck="false">
+    </label>
+    <button id="theme" class="icon-btn" aria-label="Toggle dark mode">◐</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="Books">
+    <h2>Books</h2>
+    <ul id="book-list" class="book-list"></ul>
+    <p class="sidebar-note">
+      Click any Greek word to see its dictionary form, full parse and meaning.
+    </p>
+  </nav>
+
+  <main id="reader" class="reader" tabindex="-1">
+    <div id="text" class="text" aria-live="polite">
+      <p class="loading">Loading…</p>
+    </div>
+  </main>
+</div>
+
+<div id="popup" class="popup" role="dialog" aria-live="polite" hidden>
+  <div class="popup-arrow" aria-hidden="true"></div>
+  <button class="popup-close" aria-label="Close">×</button>
+  <div class="popup-head">
+    <span id="p-form" class="p-form"></span>
+    <span id="p-ref" class="p-ref"></span>
+  </div>
+  <div id="p-gloss" class="p-gloss"></div>
+  <dl class="p-grid">
+    <dt>Dictionary form</dt><dd id="p-lemma"></dd>
+    <dt>Parse</dt><dd id="p-parse"></dd>
+    <dt>Function</dt><dd id="p-rel"></dd>
+  </dl>
+  <div class="popup-foot">
+    <a id="p-logeion" href="#" target="_blank" rel="noopener">Full entry in Logeion ↗</a>
+    <span id="p-src" class="p-src"></span>
+  </div>
+</div>
+
+<footer class="sitefoot">
+  <p>
+    Text and morphology from the
+    <a href="https://github.com/PerseusDL/treebank_data" target="_blank" rel="noopener">Perseus Ancient Greek Dependency Treebank</a>
+    (CC BY-SA 3.0). Definitions from
+    <a href="https://en.wiktionary.org/" target="_blank" rel="noopener">Wiktionary</a>
+    (CC BY-SA) and Liddell–Scott–Jones via
+    <a href="https://github.com/PerseusDL/lexica" target="_blank" rel="noopener">Perseus</a> (CC BY-SA 3.0).
+  </p>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
