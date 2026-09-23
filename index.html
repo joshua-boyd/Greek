@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Homer — an annotated reader</title>
 <meta name="description" content="Read Homer's Iliad and Odyssey in Greek with click-to-parse morphology from the Perseus Ancient Greek Dependency Treebank.">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=2">
 </head>
 <body>
 
@@ -23,9 +23,9 @@
 
 <div class="layout">
   <nav id="sidebar" class="sidebar" aria-label="Works and books">
-    <h2>Work</h2>
-    <ul id="work-list" class="book-list work-list"></ul>
-    <h2>Books</h2>
+    <h2>Choose a work</h2>
+    <ul id="work-list" class="book-list work-list" role="radiogroup" aria-label="Work"></ul>
+    <h2 id="books-head">Books</h2>
     <ul id="book-list" class="book-list"></ul>
     <p class="sidebar-note">
       Click any Greek word to see its dictionary form, full parse and meaning.
@@ -69,6 +69,6 @@
   </p>
 </footer>
 
-<script src="assets/app.js"></script>
+<script src="assets/app.js?v=2"></script>
 </body>
 </html>

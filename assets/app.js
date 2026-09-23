@@ -78,6 +78,7 @@
     text: document.getElementById("text"),
     list: document.getElementById("book-list"),
     works: document.getElementById("work-list"),
+    booksHead: document.getElementById("books-head"),
     workName: document.getElementById("work-name"),
     popup: document.getElementById("popup"),
     sidebar: document.getElementById("sidebar"),
@@ -373,8 +374,11 @@
       document.title = "Homer, " + work.title + " — an annotated reader";
       buildBookList();
       Array.prototype.forEach.call(el.works.querySelectorAll("button"), function (b) {
-        b.setAttribute("aria-current", String(b.dataset.work === work.id));
+        var on = b.dataset.work === work.id;
+        b.setAttribute("aria-current", String(on));
+        b.setAttribute("aria-checked", String(on));
       });
+      el.booksHead.textContent = "Books of the " + work.title;
     }
     return selectBook(n || 1, lineNo, push);
   }
@@ -443,8 +447,10 @@
   function buildWorkList() {
     var html = "";
     for (var i = 0; i < works.length; i++) {
-      html += '<li><button type="button" data-work="' + esc(works[i].id) + '">' +
-        "<span>" + esc(works[i].title) + "</span>" +
+      html += '<li><button type="button" role="radio" aria-checked="false" data-work="' +
+        esc(works[i].id) + '">' +
+        '<span class="pick"><span class="dot" aria-hidden="true"></span>' +
+        esc(works[i].title) + "</span>" +
         '<span class="greek">' + esc(works[i].greek) + "</span></button></li>";
     }
     el.works.innerHTML = html;
