@@ -449,8 +449,7 @@
     for (var i = 0; i < works.length; i++) {
       html += '<li><button type="button" role="radio" aria-checked="false" data-work="' +
         esc(works[i].id) + '">' +
-        '<span class="pick"><span class="dot" aria-hidden="true"></span>' +
-        esc(works[i].title) + "</span>" +
+        "<span>" + esc(works[i].title) + "</span>" +
         '<span class="greek">' + esc(works[i].greek) + "</span></button></li>";
     }
     el.works.innerHTML = html;
