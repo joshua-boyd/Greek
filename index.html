@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Homer, Iliad — an annotated reader</title>
-<meta name="description" content="Read Homer's Iliad in Greek with click-to-parse morphology from the Perseus Ancient Greek Dependency Treebank.">
+<title>Homer — an annotated reader</title>
+<meta name="description" content="Read Homer's Iliad and Odyssey in Greek with click-to-parse morphology from the Perseus Ancient Greek Dependency Treebank.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <header class="topbar">
   <button id="menu-toggle" class="icon-btn" aria-label="Show book list" aria-expanded="false">☰</button>
-  <h1>Ὅμηρος · <span class="subtitle">Iliad</span></h1>
+  <h1>Ὅμηρος · <span id="work-name" class="subtitle">Iliad</span></h1>
   <div class="topbar-right">
     <label class="jump">
       <span class="sr-only">Go to line</span>
@@ -22,7 +22,9 @@
 </header>
 
 <div class="layout">
-  <nav id="sidebar" class="sidebar" aria-label="Books">
+  <nav id="sidebar" class="sidebar" aria-label="Works and books">
+    <h2>Work</h2>
+    <ul id="work-list" class="book-list work-list"></ul>
     <h2>Books</h2>
     <ul id="book-list" class="book-list"></ul>
     <p class="sidebar-note">

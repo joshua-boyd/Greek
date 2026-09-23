@@ -1,4 +1,4 @@
-/* Homer, Iliad — an annotated reader.
+/* Homer — an annotated reader.
  *
  * Every token rendered here is a distinct record from the Perseus treebank,
  * addressed by its position in the poem. Nothing is looked up by spelling, so
@@ -7,10 +7,17 @@
 (function () {
   "use strict";
 
-  var BOOK_NAMES = [
+  /* Books are traditionally numbered by letter: the Iliad in capitals, the
+     Odyssey in lower case. Used for the heading, not the sidebar. */
+  var BOOK_LETTERS = [
     "Α", "Β", "Γ", "Δ", "Ε", "Ζ", "Η", "Θ", "Ι", "Κ", "Λ", "Μ",
     "Ν", "Ξ", "Ο", "Π", "Ρ", "Σ", "Τ", "Υ", "Φ", "Χ", "Ψ", "Ω"
   ];
+
+  function bookLetter(work, n) {
+    var c = BOOK_LETTERS[n - 1] || String(n);
+    return work.case === "lower" ? c.toLowerCase() : c;
+  }
 
   /* Perseus/AGDT nine-character postag, one slot per feature. */
   var MORPH = [
@@ -70,6 +77,8 @@
   var el = {
     text: document.getElementById("text"),
     list: document.getElementById("book-list"),
+    works: document.getElementById("work-list"),
+    workName: document.getElementById("work-name"),
     popup: document.getElementById("popup"),
     sidebar: document.getElementById("sidebar"),
     reader: document.getElementById("reader"),
@@ -85,10 +94,19 @@
   };
 
   var lexicon = null;
+  var works = [];           // from data/works.json
+  var work = null;          // the work currently selected
   var current = null;       // the book currently rendered
   var tokens = [];          // flat token list for the rendered book
   var activeWord = null;
   var bookCache = {};
+
+  function workById(id) {
+    for (var i = 0; i < works.length; i++) {
+      if (works[i].id === id) return works[i];
+    }
+    return null;
+  }
 
   /* ---------------- data ---------------- */
 
@@ -99,10 +117,11 @@
     });
   }
 
-  function loadBook(n) {
-    if (bookCache[n]) return Promise.resolve(bookCache[n]);
-    return getJSON("data/iliad/book-" + n + ".json").then(function (d) {
-      bookCache[n] = d;
+  function loadBook(workId, n) {
+    var key = workId + ":" + n;
+    if (bookCache[key]) return Promise.resolve(bookCache[key]);
+    return getJSON("data/" + workId + "/book-" + n + ".json").then(function (d) {
+      bookCache[key] = d;
       return d;
     });
   }
@@ -213,8 +232,9 @@
     current = book;
     tokens = [];
 
-    var html = ['<h2 class="book-title"><small>Iliad · Book ' + book.book +
-      "</small>Ἰλιάς " + BOOK_NAMES[book.book - 1] + "</h2>"];
+    var html = ['<h2 class="book-title"><small>' + work.title + " · Book " +
+      book.book + "</small>" + work.greek + " " +
+      bookLetter(work, book.book) + "</h2>"];
 
     for (var i = 0; i < book.lines.length; i++) {
       var line = book.lines[i];
@@ -267,7 +287,7 @@
     var g = glossFor(t.lemma, t.tag);
 
     el.form.textContent = t.form;
-    el.ref.textContent = "Il. " + current.book + "." + t.line;
+    el.ref.textContent = work.ref + " " + current.book + "." + t.line;
     el.gloss.textContent = g.text;
     el.gloss.className = "p-gloss" + (g.weak ? " none" : "");
     el.lemma.textContent = t.lemma || "—";
@@ -344,15 +364,30 @@
 
   /* ---------------- navigation ---------------- */
 
+  /* Switching work re-lists its books, then opens one. */
+  function selectWork(id, n, lineNo, push) {
+    var next = workById(id) || works[0];
+    if (work !== next) {
+      work = next;
+      el.workName.textContent = work.title;
+      document.title = "Homer, " + work.title + " — an annotated reader";
+      buildBookList();
+      Array.prototype.forEach.call(el.works.querySelectorAll("button"), function (b) {
+        b.setAttribute("aria-current", String(b.dataset.work === work.id));
+      });
+    }
+    return selectBook(n || 1, lineNo, push);
+  }
+
   function selectBook(n, lineNo, push) {
-    n = Math.min(24, Math.max(1, n | 0));
+    n = Math.min(work.books, Math.max(1, n | 0));
     el.text.innerHTML = '<p class="loading">Loading Book ' + n + "…</p>";
 
     Array.prototype.forEach.call(el.list.querySelectorAll("button"), function (b) {
       b.setAttribute("aria-current", String(+b.dataset.book === n));
     });
 
-    return loadBook(n).then(function (book) {
+    return loadBook(work.id, n).then(function (book) {
       render(book);
       if (lineNo) {
         goToLine(n, lineNo);
@@ -361,7 +396,7 @@
         window.scrollTo(0, 0);
       }
       if (push !== false) {
-        history.replaceState(null, "", "#" + n + (lineNo ? "." + lineNo : ""));
+        history.replaceState(null, "", hashFor(work.id, n, lineNo));
       }
       el.sidebar.classList.remove("open");
     }).catch(function (e) {
@@ -386,27 +421,54 @@
     return { book: +m[1], line: m[2] ? +m[2] : 0 };
   }
 
+  function hashFor(id, book, line) {
+    return "#" + id + "." + book + (line ? "." + line : "");
+  }
+
+  /* "#odyssey.9.105", or a bare "#6.440" meaning the first work. */
   function fromHash() {
-    return parseRef(location.hash.replace(/^#/, "")) || { book: 1, line: 0 };
+    var raw = decodeURIComponent(location.hash.replace(/^#/, ""));
+    var m = /^([A-Za-z][A-Za-z0-9_-]*)\.(.+)$/.exec(raw);
+    if (m && workById(m[1])) {
+      var ref = parseRef(m[2]);
+      if (ref) return { id: m[1], book: ref.book, line: ref.line };
+    }
+    var bare = parseRef(raw);
+    if (bare) return { id: works[0].id, book: bare.book, line: bare.line };
+    return { id: works[0].id, book: 1, line: 0 };
   }
 
   /* ---------------- wiring ---------------- */
 
-  function buildSidebar() {
+  function buildWorkList() {
     var html = "";
-    for (var i = 1; i <= 24; i++) {
+    for (var i = 0; i < works.length; i++) {
+      html += '<li><button type="button" data-work="' + esc(works[i].id) + '">' +
+        "<span>" + esc(works[i].title) + "</span>" +
+        '<span class="greek">' + esc(works[i].greek) + "</span></button></li>";
+    }
+    el.works.innerHTML = html;
+    el.works.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-work]");
+      if (b && b.dataset.work !== work.id) selectWork(b.dataset.work);
+    });
+  }
+
+  function buildBookList() {
+    var html = "";
+    for (var i = 1; i <= work.books; i++) {
       html += '<li><button type="button" data-book="' + i + '">' +
-        "<span>Book " + i + "</span>" +
-        '<span class="greek">' + BOOK_NAMES[i - 1] + "</span></button></li>";
+        "Book " + i + "</button></li>";
     }
     el.list.innerHTML = html;
+  }
+
+  function wire() {
     el.list.addEventListener("click", function (e) {
       var b = e.target.closest("button[data-book]");
       if (b) selectBook(+b.dataset.book);
     });
-  }
 
-  function wire() {
     el.text.addEventListener("click", function (e) {
       var span = e.target.closest(".w");
       if (span) {
@@ -437,7 +499,7 @@
       if (!ref) return;
       if (current && ref.book === current.book) {
         goToLine(ref.book, ref.line);
-        history.replaceState(null, "", "#" + ref.book + "." + ref.line);
+        history.replaceState(null, "", hashFor(work.id, ref.book, ref.line));
       } else {
         selectBook(ref.book, ref.line);
       }
@@ -450,34 +512,41 @@
     });
 
     var theme = document.getElementById("theme");
-    if (localStorage.getItem("iliad-theme") === "dark") {
+    if (localStorage.getItem("homer-theme") === "dark") {
       document.body.classList.add("dark");
     }
     theme.addEventListener("click", function () {
       var dark = document.body.classList.toggle("dark");
-      localStorage.setItem("iliad-theme", dark ? "dark" : "light");
+      localStorage.setItem("homer-theme", dark ? "dark" : "light");
     });
 
     window.addEventListener("hashchange", function () {
       var ref = fromHash();
-      if (current && ref.book === current.book) {
+      if (work && ref.id === work.id && current && ref.book === current.book) {
         if (ref.line) goToLine(ref.book, ref.line);
       } else {
-        selectBook(ref.book, ref.line, false);
+        selectWork(ref.id, ref.book, ref.line, false);
       }
     });
   }
 
   function start() {
-    buildSidebar();
-    wire();
+    return getJSON("data/works.json").then(function (d) {
+      works = d.works || [];
+      if (!works.length) throw new Error("no works listed in data/works.json");
 
-    var ref = fromHash();
-    // The text is readable before the dictionary arrives; glosses fill in after.
-    getJSON("data/lexicon.json").then(function (d) { lexicon = d; }).catch(function () {
-      lexicon = {};
+      buildWorkList();
+      wire();
+
+      // The text is readable before the dictionary arrives; glosses fill in after.
+      getJSON("data/lexicon.json").then(function (d) { lexicon = d; })
+        .catch(function () { lexicon = {}; });
+
+      var ref = fromHash();
+      return selectWork(ref.id, ref.book, ref.line);
+    }).catch(function (e) {
+      el.text.innerHTML = '<p class="error">Could not start: ' + esc(e.message) + "</p>";
     });
-    selectBook(ref.book, ref.line);
   }
 
   start();

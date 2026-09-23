@@ -1,0 +1,20 @@
+{
+ "works": [
+  {
+   "id": "iliad",
+   "title": "Iliad",
+   "greek": "Ἰλιάς",
+   "ref": "Il.",
+   "case": "upper",
+   "books": 24
+  },
+  {
+   "id": "odyssey",
+   "title": "Odyssey",
+   "greek": "Ὀδύσσεια",
+   "ref": "Od.",
+   "case": "lower",
+   "books": 24
+  }
+ ]
+}

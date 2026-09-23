@@ -114,7 +114,7 @@ def main():
         for r in recs:
             if r["lemma"]:
                 alllem.add(r["lemma"])
-    with open(os.path.join(OUT, "..", "lemmas.txt"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(OUT, "lemmas.txt"), "w", encoding="utf-8") as fh:
         for l in sorted(alllem):
             fh.write(l + "\n")
     print("total tokens", total_words, "unique lemmas", len(alllem))

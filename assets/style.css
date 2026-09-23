@@ -130,6 +130,12 @@ html, body {
   margin: .25rem .5rem .6rem;
 }
 
+.sidebar h2 + .work-list + h2 {
+  margin-top: 1.1rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--rule);
+}
+
 .book-list {
   list-style: none;
   margin: 0;

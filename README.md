@@ -1,16 +1,16 @@
-# Iliad Reader
+# Homer Reader
 
-A static website for reading Homer's *Iliad* in Greek. Pick a book from the
-sidebar, then click any word to see its dictionary form, a full morphological
-parse, its syntactic function and an English definition. The popup stays open
-until you click somewhere else.
+A static website for reading Homer's *Iliad* and *Odyssey* in Greek. Pick a
+work and a book from the sidebar, then click any word to see its dictionary
+form, a full morphological parse, its syntactic function and an English
+definition. The popup stays open until you click somewhere else.
 
 In the spirit of [greekbible.com](https://www.greekbible.com/), but for Homer.
 
 ## How the annotations work
 
 Every token is addressed **by its position in the poem**, not by its spelling.
-Each word in `data/iliad/book-N.json` is a separate record carrying its own
+Each word in `data/<work>/book-N.json` is a separate record carrying its own
 lemma, morphology tag and dependency relation, exactly as the Perseus
 annotators assigned them at that line. Two identically spelled words therefore
 never share an analysis — ambiguous forms like `τε`, `ἣ` or `τοῦ` each get
@@ -21,10 +21,28 @@ lemma the annotators already chose for that token.
 
 ## Coverage
 
-- All 24 books, 15,683 lines, 128,102 annotated tokens.
-- Definitions for 90.9% of the 6,983 distinct lemmas.
-- The remaining gaps are almost entirely minor proper names (absent from both
-  dictionaries); the reader labels those as names, and flags patronymics.
+| Work | Books | Lines | Tokens |
+| --- | --- | --- | --- |
+| Iliad | 24 | 15,683 | 128,102 |
+| Odyssey | 24 | 12,057 | 104,200 |
+
+Both poems share one lexicon, covering 90.3% of the 8,832 distinct lemmas
+(3,890 of them appear in both works). The remaining gaps are almost entirely
+minor proper names, absent from both dictionaries; the reader labels those as
+names and flags patronymics.
+
+## Adding another text
+
+Every other text in the Perseus treebank works with this pipeline unchanged —
+Hesiod, the tragedians, Herodotus Book 1, several Plato dialogues. Append an
+entry to `WORKS` in `tools/build.py` with the text's URN and rerun the build.
+The per-book JSON, the shared lexicon and the site's work picker all follow
+from that list; no front-end change is needed.
+
+## URLs
+
+`#iliad.1.1` and `#odyssey.9.105` link to a work, book and line. A bare
+`#6.440` still resolves to the Iliad.
 
 ## Running it locally
 
@@ -55,7 +73,7 @@ and regenerates `data/`. Use `--offline` to rebuild from an existing cache.
 
 | Script | Purpose |
 | --- | --- |
-| `tools/build.py` | Fetches sources and drives the whole build |
+| `tools/build.py` | Lists the works, fetches sources, drives the whole build |
 | `tools/build_text.py` | Treebank XML → one JSON file per book |
 | `tools/build_lexicon.py` | Merges both dictionaries into `data/lexicon.json` |
 | `tools/lsj.py` | Pulls glosses out of LSJ's TEI markup |

@@ -1,5 +1,6 @@
 tools/cache/
 data/lemmas.txt
+data/*/lemmas.txt
 data/lexicon.json.misses.txt
 .DS_Store
 .claude/
