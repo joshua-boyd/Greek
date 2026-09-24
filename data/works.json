@@ -3,18 +3,255 @@
   {
    "id": "iliad",
    "title": "Iliad",
+   "author": "Ὅμηρος",
+   "label": "Iliad",
    "greek": "Ἰλιάς",
    "ref": "Il.",
-   "case": "upper",
-   "books": 24
+   "kind": "verse",
+   "unit": "line",
+   "noun": "Book",
+   "letters": "upper",
+   "divisions": [
+    {
+     "n": 1,
+     "units": 611
+    },
+    {
+     "n": 2,
+     "units": 877
+    },
+    {
+     "n": 3,
+     "units": 461
+    },
+    {
+     "n": 4,
+     "units": 544
+    },
+    {
+     "n": 5,
+     "units": 909
+    },
+    {
+     "n": 6,
+     "units": 529
+    },
+    {
+     "n": 7,
+     "units": 482
+    },
+    {
+     "n": 8,
+     "units": 561
+    },
+    {
+     "n": 9,
+     "units": 709
+    },
+    {
+     "n": 10,
+     "units": 579
+    },
+    {
+     "n": 11,
+     "units": 847
+    },
+    {
+     "n": 12,
+     "units": 471
+    },
+    {
+     "n": 13,
+     "units": 837
+    },
+    {
+     "n": 14,
+     "units": 521
+    },
+    {
+     "n": 15,
+     "units": 746
+    },
+    {
+     "n": 16,
+     "units": 867
+    },
+    {
+     "n": 17,
+     "units": 761
+    },
+    {
+     "n": 18,
+     "units": 617
+    },
+    {
+     "n": 19,
+     "units": 424
+    },
+    {
+     "n": 20,
+     "units": 503
+    },
+    {
+     "n": 21,
+     "units": 611
+    },
+    {
+     "n": 22,
+     "units": 515
+    },
+    {
+     "n": 23,
+     "units": 897
+    },
+    {
+     "n": 24,
+     "units": 804
+    }
+   ]
   },
   {
    "id": "odyssey",
    "title": "Odyssey",
+   "author": "Ὅμηρος",
+   "label": "Odyssey",
    "greek": "Ὀδύσσεια",
    "ref": "Od.",
-   "case": "lower",
-   "books": 24
+   "kind": "verse",
+   "unit": "line",
+   "noun": "Book",
+   "letters": "lower",
+   "divisions": [
+    {
+     "n": 1,
+     "units": 441
+    },
+    {
+     "n": 2,
+     "units": 433
+    },
+    {
+     "n": 3,
+     "units": 495
+    },
+    {
+     "n": 4,
+     "units": 845
+    },
+    {
+     "n": 5,
+     "units": 492
+    },
+    {
+     "n": 6,
+     "units": 330
+    },
+    {
+     "n": 7,
+     "units": 346
+    },
+    {
+     "n": 8,
+     "units": 585
+    },
+    {
+     "n": 9,
+     "units": 550
+    },
+    {
+     "n": 10,
+     "units": 572
+    },
+    {
+     "n": 11,
+     "units": 640
+    },
+    {
+     "n": 12,
+     "units": 452
+    },
+    {
+     "n": 13,
+     "units": 440
+    },
+    {
+     "n": 14,
+     "units": 532
+    },
+    {
+     "n": 15,
+     "units": 556
+    },
+    {
+     "n": 16,
+     "units": 479
+    },
+    {
+     "n": 17,
+     "units": 605
+    },
+    {
+     "n": 18,
+     "units": 427
+    },
+    {
+     "n": 19,
+     "units": 603
+    },
+    {
+     "n": 20,
+     "units": 393
+    },
+    {
+     "n": 21,
+     "units": 423
+    },
+    {
+     "n": 22,
+     "units": 500
+    },
+    {
+     "n": 23,
+     "units": 370
+    },
+    {
+     "n": 24,
+     "units": 548
+    }
+   ]
+  },
+  {
+   "id": "lysias",
+   "title": "Lysias",
+   "author": "Λυσίας",
+   "label": "Speeches",
+   "greek": "Λυσίας",
+   "ref": "Lys.",
+   "kind": "prose",
+   "unit": "sentence",
+   "noun": "Oration",
+   "divisions": [
+    {
+     "n": 1,
+     "units": 134,
+     "title": "On the Murder of Eratosthenes"
+    },
+    {
+     "n": 14,
+     "units": 101,
+     "title": "Against Alcibiades I"
+    },
+    {
+     "n": 15,
+     "units": 17,
+     "title": "Against Alcibiades II"
+    },
+    {
+     "n": 23,
+     "units": 46,
+     "title": "Against Pancleon"
+    }
+   ]
   }
  ]
 }

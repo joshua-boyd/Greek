@@ -80,6 +80,7 @@
     works: document.getElementById("work-list"),
     booksHead: document.getElementById("books-head"),
     workName: document.getElementById("work-name"),
+    workAuthor: document.getElementById("work-author"),
     popup: document.getElementById("popup"),
     sidebar: document.getElementById("sidebar"),
     reader: document.getElementById("reader"),
@@ -107,6 +108,18 @@
       if (works[i].id === id) return works[i];
     }
     return null;
+  }
+
+  /* Divisions are not always 1..N — Lysias is Orations 1, 14, 15 and 23. */
+  function divisionOf(w, n) {
+    for (var i = 0; i < w.divisions.length; i++) {
+      if (w.divisions[i].n === n) return w.divisions[i];
+    }
+    return null;
+  }
+
+  function plural(noun) {
+    return /s$/.test(noun) ? noun + "es" : noun + "s";
   }
 
   /* ---------------- data ---------------- */
@@ -233,14 +246,23 @@
     current = book;
     tokens = [];
 
-    var html = ['<h2 class="book-title"><small>' + work.title + " · Book " +
-      book.book + "</small>" + work.greek + " " +
-      bookLetter(work, book.book) + "</h2>"];
+    var div = divisionOf(work, book.book) || {};
+    // Verse gets its traditional book letter; prose gets the speech's title.
+    var display = div.title ? esc(div.title)
+      : work.greek + " " + bookLetter(work, book.book);
+    var html = ['<h2 class="book-title"><small>' + esc(work.title) + " · " +
+      esc(work.noun) + " " + book.book + "</small>" + display + "</h2>"];
+
+    var prose = book.unit === "sentence";
+    if (prose) html.push('<div class="prose-note">' +
+      "Numbered by sentence: the treebank records no section numbers for this text." +
+      "</div>");
 
     for (var i = 0; i < book.lines.length; i++) {
       var line = book.lines[i];
       var n = line.n;
-      var showNum = (n % 5 === 0) || n === 1 || i === book.lines.length - 1;
+      // Sentences are the only handle in prose, so number every one of them.
+      var showNum = prose || (n % 5 === 0) || n === 1 || i === book.lines.length - 1;
       var pieces = [];
 
       for (var j = 0; j < line.w.length; j++) {
@@ -264,7 +286,8 @@
       }
 
       html.push(
-        '<div class="line" id="l' + book.book + "-" + n + '">' +
+        '<div class="line' + (prose ? " prose" : "") + '" id="l' +
+        book.book + "-" + n + '">' +
         '<span class="lnum">' + (showNum ? n : "") + "</span>" +
         '<span class="line-text">' + pieces.join("") + "</span>" +
         "</div>"
@@ -288,7 +311,10 @@
     var g = glossFor(t.lemma, t.tag);
 
     el.form.textContent = t.form;
-    el.ref.textContent = work.ref + " " + current.book + "." + t.line;
+    // "Il. 1.1" is a real citation; the prose numbers are ours, so say so.
+    el.ref.textContent = current.unit === "sentence"
+      ? work.ref + " " + current.book + " · sentence " + t.line
+      : work.ref + " " + current.book + "." + t.line;
     el.gloss.textContent = g.text;
     el.gloss.className = "p-gloss" + (g.weak ? " none" : "");
     el.lemma.textContent = t.lemma || "—";
@@ -370,22 +396,28 @@
     var next = workById(id) || works[0];
     if (work !== next) {
       work = next;
-      el.workName.textContent = work.title;
-      document.title = "Homer, " + work.title + " — an annotated reader";
+      el.workAuthor.textContent = work.author;
+      el.workName.textContent = work.label || work.title;
+      document.title = work.title + " — an annotated Greek reader";
       buildBookList();
       Array.prototype.forEach.call(el.works.querySelectorAll("button"), function (b) {
         var on = b.dataset.work === work.id;
         b.setAttribute("aria-current", String(on));
         b.setAttribute("aria-checked", String(on));
       });
-      el.booksHead.textContent = "Books of the " + work.title;
+      el.booksHead.textContent = plural(work.noun) + " of " +
+        (work.kind === "prose" ? "" : "the ") + work.title;
+      el.jump.placeholder = "e.g. " + work.divisions[0].n + "." +
+        (work.kind === "prose" ? "5" : "440");
     }
     return selectBook(n || 1, lineNo, push);
   }
 
   function selectBook(n, lineNo, push) {
-    n = Math.min(work.books, Math.max(1, n | 0));
-    el.text.innerHTML = '<p class="loading">Loading Book ' + n + "…</p>";
+    n = n | 0;
+    if (!divisionOf(work, n)) n = work.divisions[0].n;
+    el.text.innerHTML = '<p class="loading">Loading ' + esc(work.noun) + " " +
+      n + "…</p>";
 
     Array.prototype.forEach.call(el.list.querySelectorAll("button"), function (b) {
       b.setAttribute("aria-current", String(+b.dataset.book === n));
@@ -404,8 +436,8 @@
       }
       el.sidebar.classList.remove("open");
     }).catch(function (e) {
-      el.text.innerHTML = '<p class="error">Could not load Book ' + n +
-        ". " + esc(e.message) + "</p>";
+      el.text.innerHTML = '<p class="error">Could not load ' + esc(work.noun) +
+        " " + n + ". " + esc(e.message) + "</p>";
     });
   }
 
@@ -461,9 +493,12 @@
 
   function buildBookList() {
     var html = "";
-    for (var i = 1; i <= work.books; i++) {
-      html += '<li><button type="button" data-book="' + i + '">' +
-        "Book " + i + "</button></li>";
+    for (var i = 0; i < work.divisions.length; i++) {
+      var d = work.divisions[i];
+      html += '<li><button type="button" data-book="' + d.n + '">' +
+        "<span>" + esc(work.noun) + " " + d.n + "</span>" +
+        (d.title ? '<span class="div-title">' + esc(d.title) + "</span>" : "") +
+        "</button></li>";
     }
     el.list.innerHTML = html;
   }

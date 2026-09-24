@@ -168,6 +168,19 @@ html, body {
   font-weight: 600;
 }
 
+/* speech titles sit under the "Oration N" label */
+.book-list button { flex-wrap: wrap; }
+
+.book-list .div-title {
+  flex: 1 0 100%;
+  font-size: .72rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  margin-top: .1rem;
+}
+
+.book-list button[aria-current="true"] .div-title { color: #fff; opacity: .85; }
+
 .book-list .greek {
   font-family: var(--greek);
   color: var(--ink-soft);
@@ -224,6 +237,22 @@ html, body {
   font-size: 1.22rem;
   line-height: 1.95;
   scroll-margin-top: 5rem;
+}
+
+/* prose: a sentence wraps over several visual lines, so it needs room
+   between blocks and its number pinned at the top of the block */
+.line.prose {
+  align-items: flex-start;
+  margin-bottom: .55rem;
+  line-height: 1.85;
+}
+
+.prose-note {
+  margin: -.6rem 0 1.4rem;
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-style: italic;
 }
 
 .lnum {

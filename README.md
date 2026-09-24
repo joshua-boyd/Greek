@@ -1,18 +1,19 @@
-# Homer Reader
+# Greek Reader
 
-A static website for reading Homer's *Iliad* and *Odyssey* in Greek. Pick a
-work and a book from the sidebar, then click any word to see its dictionary
-form, a full morphological parse, its syntactic function and an English
-definition. The popup stays open until you click somewhere else.
+A static website for reading Homer's *Iliad* and *Odyssey* and the speeches of
+Lysias in Greek. Pick a work and a book from the sidebar, then click any word
+to see its dictionary form, a full morphological parse, its syntactic function
+and an English definition. The popup stays open until you click somewhere else.
 
-In the spirit of [greekbible.com](https://www.greekbible.com/), but for Homer.
+In the spirit of [greekbible.com](https://www.greekbible.com/), but for
+classical Greek.
 
 ## How the annotations work
 
-Every token is addressed **by its position in the poem**, not by its spelling.
+Every token is addressed **by its position in the text**, not by its spelling.
 Each word in `data/<work>/book-N.json` is a separate record carrying its own
 lemma, morphology tag and dependency relation, exactly as the Perseus
-annotators assigned them at that line. Two identically spelled words therefore
+annotators assigned them at that spot. Two identically spelled words therefore
 never share an analysis — ambiguous forms like `τε`, `ἣ` or `τοῦ` each get
 whatever was annotated in that specific place.
 
@@ -21,28 +22,47 @@ lemma the annotators already chose for that token.
 
 ## Coverage
 
-| Work | Books | Lines | Tokens |
+| Work | Divisions | Units | Tokens |
 | --- | --- | --- | --- |
-| Iliad | 24 | 15,683 | 128,102 |
-| Odyssey | 24 | 12,057 | 104,200 |
+| Iliad | 24 books | 15,683 lines | 128,102 |
+| Odyssey | 24 books | 12,057 lines | 104,200 |
+| Lysias | 4 orations (1, 14, 15, 23) | 298 sentences | 7,123 |
 
-Both poems share one lexicon, covering 90.3% of the 8,832 distinct lemmas
-(3,890 of them appear in both works). The remaining gaps are almost entirely
-minor proper names, absent from both dictionaries; the reader labels those as
-names and flags patronymics.
+All three share one lexicon, covering 90.4% of 9,287 distinct lemmas. The
+remaining gaps are almost entirely minor proper names, absent from both
+dictionaries; the reader labels those as names and flags patronymics.
+
+### A caveat about Lysias
+
+Homer's treebank tags every word with `cite="urn:...:BOOK.LINE"`, so those
+texts are navigable and citable by canonical line. **The Lysias files carry no
+`cite` attributes at all**, and give every sentence the same whole-speech
+`subdoc` (`1-50` for Oration 1). Canonical section numbers are therefore simply
+not present in the data.
+
+Rather than invent them, the reader numbers Lysias **by sentence** and says so
+both on the page and in the popup, which reads `Lys. 1 · sentence 12` instead
+of pretending to be `Lys. 1.4`. Recovering true sections would mean aligning
+the treebank against the sectioned TEI text in Perseus's `canonical-greekLit`
+word by word — doable, but a separate job.
+
+Only four of Lysias's speeches are treebanked; the rest of the corpus has no
+morphological annotation in this dataset.
 
 ## Adding another text
 
-Every other text in the Perseus treebank works with this pipeline unchanged —
-Hesiod, the tragedians, Herodotus Book 1, several Plato dialogues. Append an
-entry to `WORKS` in `tools/build.py` with the text's URN and rerun the build.
-The per-book JSON, the shared lexicon and the site's work picker all follow
-from that list; no front-end change is needed.
+Append an entry to `WORKS` in `tools/build.py` and rerun the build. A *verse*
+work is one source file split into books by citation; a *prose* work lists its
+parts, each its own file, with a title per part. The JSON, the shared lexicon
+and the site's pickers all follow from that list; no front-end change is
+needed. Hesiod, the tragedians, Herodotus Book 1 and several Plato dialogues
+are all available in the same treebank.
 
 ## URLs
 
-`#iliad.1.1` and `#odyssey.9.105` link to a work, book and line. A bare
-`#6.440` still resolves to the Iliad.
+`#iliad.1.1` and `#odyssey.9.105` link to a work, book and line;
+`#lysias.23.5` works the same way for a speech and sentence. A bare `#6.440`
+still resolves to the Iliad.
 
 ## Running it locally
 
@@ -74,7 +94,7 @@ and regenerates `data/`. Use `--offline` to rebuild from an existing cache.
 | Script | Purpose |
 | --- | --- |
 | `tools/build.py` | Lists the works, fetches sources, drives the whole build |
-| `tools/build_text.py` | Treebank XML → one JSON file per book |
+| `tools/build_text.py` | Treebank XML → one JSON file per book or speech |
 | `tools/build_lexicon.py` | Merges both dictionaries into `data/lexicon.json` |
 | `tools/lsj.py` | Pulls glosses out of LSJ's TEI markup |
 | `tools/wiktionary.py` | Pulls glosses out of the Wiktionary dump |
@@ -83,10 +103,10 @@ and regenerates `data/`. Use `--offline` to rebuild from an existing cache.
 
 ### Notes on the build
 
-- Nodes marked `artificial="elliptic"` are annotator placeholders for words
-  Homer omits. They carry no text and are dropped.
+- Nodes marked `artificial="elliptic"` are annotator placeholders for words the
+  author omits. They carry no text and are dropped.
 - Punctuation has no citation of its own and inherits the line of the word
-  beside it.
+  beside it (verse only; prose groups by sentence).
 - LSJ headwords are Beta Code and need converting; the three sources also
   disagree about diaeresis and vowel-length marks, so matching falls back
   through exact → no-diaeresis → accent-insensitive keys.

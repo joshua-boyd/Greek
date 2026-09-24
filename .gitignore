@@ -4,3 +4,4 @@ data/*/lemmas.txt
 data/lexicon.json.misses.txt
 .DS_Store
 .claude/
+__pycache__/
